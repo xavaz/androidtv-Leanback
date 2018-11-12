@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <string name="connect_usb">USB스토리지를 연결해주세요.</string>
+    <string name="pref_title_USB">외장USB 라이브러리</string>
+    <string name="pref_key_USB">pref_usb</string>
+
+    <string name="autoUpdate_checkbox">자동 업데이트</string>
+    <string name="install_mxplayer">이 기능사용을 원하시면 MX플레이어Pro를 설치하여 주십시오.(com.mxtech.videoplayer.pro)</string>
+    <string name="device_not_supported">미지원 기기</string>
+    <string name="device_not_supported_message">FFmpeg가 이 기기에서 지원되지 않습니다.</string>
+    <string name="app_name"><![CDATA[앵벌]]></string>
+    <string name="browse_title"><![CDATA[안드로이드 TV]]></string>
+    <string name="related_movies">연관 아이템</string>
+    <string name="vertical_grid_title"><![CDATA[세로 비디오 그리드]]></string>
+    <string name="popular_header"></string>
+    <string name="more_samples">설정</string>
+    <string name="grid_view">세로 그리드 뷰</string>
+    <string name="error_fragment">에러 화면</string>
+    <string name="personal_settings">개인설정</string>
+    <string name="watch_trailer_1">시작</string>
+    <string name="watch_trailer_2">재생</string>
+    <string name="rent_1">재생</string>
+    <string name="rent_2">영상</string>
+    <string name="buy_1">연관</string>
+    <string name="buy_2">아이템</string>
+    <string name="queue_name">재생목록 재생</string>
+
+    <string name="search_results">\'%1$s\'에 대한 검색결과</string>
+    <string name="no_search_results">\'%1$s\'에 대한 검색결과가 없습니다.</string>
+    <string name="catalog_url">https://storage.googleapis.com/android-tv/android_tv_videos_new.json</string>
+
+    <!-- Error messages -->
+
+    <string name="error_fragment_message">에러 발생</string>
+    <string name="dismiss_error">닫기</string>
+
+    <!-- Global Search -->
+    <!-- The action label for global search -->
+    <string name="global_search">GLOBALSEARCH</string>
+
+    <!-- The label for use as a searchable item -->
+    <string name="search_label">Leanback API Demo</string>
+
+    <!-- The hint text that appears in the search box. -->
+    <string name="search_hint">Search for videos</string>
+
+    <!-- The description that will show up in the search settings for this source.  -->
+    <string name="settings_description">Leanback API Demo Videos</string>
+
+    <!-- Strings related to guided sequence activity -->
+    <string name="OPTION_NAMES1">업데이트</string>
+    <string name="OPTION_NAMES2">삭제</string>
+    <string name="OPTION_NAMES3">뒤로</string>
+    <string name="OPTION_DESCRIPTIONS1">새로운 데이터 업데이트</string>
+    <string name="OPTION_DESCRIPTIONS2">기존 데이터를 삭제</string>
+    <string name="OPTION_DESCRIPTIONS3">다른 데이터베이스를 선택</string>
+    <string name="guidedstep_first_title">데이터베이스 목록</string>
+    <string name="guidedstep_first_description">수정할 데이터베이스를 선택하세요.</string>
+    <string name="guidedstep_first_breadcrumb">데이터베이스 설정</string>
+    <string name="guidedstep_second_title">업데이트 또는 삭제</string>
+    <string name="guidedstep_second_description">선택된 데이터베이스 : </string>
+    <string name="guidedstep_second_breadcrumb">데이터베이스 액션</string>
+    <string name="guidedstep_third_title">다음과 같이 실행하시겠습니까?</string>
+    <string name="guidedstep_third_breadcrumb">확인과정</string>
+    <string name="guidedstep_third_command">다음과 같이 실행하겠습니다 : </string>
+    <string name="guidedstep_letsdoit">하겠습니다</string>
+    <string name="guidedstep_nevermind">안하셔도 되요</string>
+    <string name="guidedstep_action_description">The description can be quite long as well.
+        Just be sure to set multilineDescription to true in the GuidedAction.
+    </string>
+    <string name="guidedstep_action_title">
+        Note that Guided Actions can have titles that are quite long.
+    </string>
+    <string name="guidedstep_continue">계속</string>
+    <string name="guidedstep_cancel">취소</string>
+
+    <string name="guidedstep_serveraddress">서버 주소</string>
+    <string name="delete">삭제</string>
+    <string name="save">저장</string>
+    <string name="edit">수정</string>
+    <string name="back">뒤로</string>
+    <string name="yes">네</string>
+    <string name="no">아니오</string>
+    <string name="confirmDelete">이 데이터베이스를 지우시겠습니까?</string>
+    <string name="confirmNew">새 데이터베이스를 만드시겠습니까?</string>
+    <string name="newDB">새 데이터베이스 생성</string>
+    <string name="enterDB">주소를 입력하세요.</string>
+    <string name="header_icon">Header icon</string>
+
+
+    <string name="mobile_welcome_title">현재 모바일 환경은 지원하지 않습니다.</string>
+    <string name="mobile_welcome_description">안드로이드 TV에서만 구동이 가능합니다. 안드로이드 TV에서 이 화면이 보이시면 홈화면으로 나가신 후 메인화면에 있는 앵벌앱 아이콘을 눌러 다시 실행해 주십시오.</string>
+
+    <!-- Strings related to onboarding -->
+    <string name="onboarding_title_welcome">환영합니다!</string>
+    <string name="onboarding_title_design">음성검색 방법</string>
+    <string name="onboarding_title_simple">쉽습니다!</string>
+    <string name="onboarding_title_project">이제 시작하겠습니다!</string>
+
+    <string name="onboarding_description_welcome">앵벌은 안드로이드TV를 기본으로 지원하여 개인 미디어를 구성하여 탐색하고 재생이 가능하도록 설계되었습니다. </string>
+    <string name="onboarding_description_design">음성 검색을 하시려면 리모컨의 마이크 버튼을 눌러주시고 단순히 말하시면 됩니다. 그러면 검색결과가 화면에 나타날 것입니다.</string>
+    <string name="onboarding_description_simple">정말 쉽습니다. 단순히 리모컨의 버튼을 눌러 화면상에서 이동하고 검색하며 재생을 시작합니다. 그게 설명의 전부입니다. </string>
+    <string name="onboarding_description_project">자, 이제 준비되셨나요? 이제 시작해 봅시다.</string>
+    <string name="pref_title_settings">앱 설정</string>
+    <string name="pref_title_recommendations">아이템 추천</string>
+    <string name="pref_key_recommendations">pref_recommendations</string>
+    <string name="pref_title_mixing">비디오 믹싱</string>
+    <string name="pref_key_mixing">pref_mixing</string>
+    <string name="pref_title_screen_signin">로그인 해주세요.</string>
+    <string name="pref_title_login_description">사용자명과 패스워드를 입력해 주세요.</string>
+    <string name="pref_title_username">사용자명</string>
+    <string name="pref_title_password">패스워드</string>
+    <string name="pref_key_login">pref_login</string>
+    <string name="pref_title_login">로그인</string>
+    <string name="pref_key_server_setting">pref_server_setting</string>
+    <string name="pref_title_server_setting">서버 설정</string>
+    <string name="playback_tag">PLAYBACK_TAG</string>
+    <!-- Error messages -->
+    <string name="implement_search">Implement your own in-app search.</string>
+    <string name="card_examples_title">Card Examples</string>
+    <string name="detail_view_title">DetailView Example</string>
+    <string name="action_cicked">Action clicked. Implement your own handler.</string>
+    <string name="grid_example_title">Image Grid Example</string>
+    <string name="video_grid_example_title">Video Grid Example</string>
+    <string name="videos_url">https://storage.googleapis.com/android-tv/android_tv_videos_new.json</string>
+    <string name="action_buy">Buy </string>
+    <string name="action_wishlist">Add to wishlist</string>
+    <string name="action_related">Related</string>
+    <string name="header_related">Related Items</string>
+    <string name="header_recommended">Recommended</string>
+
+    <!-- Page/List Row -->
+
+    <!-- Dialog example -->
+    <string name="dialog_example_title">Use Google\'s location service?</string>
+    <string name="dialog_example_description">Let Google help apps determine location. This means sending anonymous location data to Google, even when no apps are running.</string>
+    <string name="dialog_example_button_positive">Agree</string>
+    <string name="dialog_example_button_negative">Disagree</string>
+    <string name="dialog_example_button_toast_positive_clicked">\'Agree\' clicked.</string>
+    <string name="dialog_example_button_toast_negative_clicked">\'Disagree\' clicked.</string>
+
+    <!-- Wizard example -->
+    <string name="wizard_example_choose_rent_options">Choose rent options</string>
+    <string name="wizard_example_watch_hd">Watch in HD on supported devices</string>
+    <string name="wizard_example_watch_sd">Watch in standard definition on the web and supported devices</string>
+    <string name="wizard_example_rental_period">Rental period: start within 30 days,\nfinish within 24 hours</string>
+    <string name="wizard_example_input_card">Enter credit card number</string>
+    <string name="wizard_example_expiration_date">Exp. date</string>
+    <string name="wizard_example_payment_method">Payment Method</string>
+    <string name="wizard_example_rent">Rent</string>
+    <string name="wizard_example_rent_hd">Rent HD</string>
+    <string name="wizard_example_rent_sd">Rent SD</string>
+    <string name="wizard_example_processing">Processinig...</string>
+    <string name="wizard_example_watch_now">Watch now</string>
+    <string name="wizard_example_later">Later</string>
+    <string name="wizard_example_watch_now_clicked">\'Watch now\' clicked.</string>
+    <string name="wizard_example_new_payment_guidance_title">New credit card</string>
+    <string name="wizard_example_new_payment_guidance_description">Enter new credit card information here</string>
+    <string name="wizard_example_input_credit">Input Payment Type</string>
+    <string name="wizard_example_visa">Visa-%s</string>
+    <string name="wizard_example_master">Master-%s</string>
+    <string name="wizard_example_input_credit_wrong">Error: invalid credit card number</string>
+    <string name="wizard_example_just_a_second">Just a second...</string>
+
+    <!--user custom-->
+    <string name="try_again">다시 시도하세요.</string>
+</resources>

@@ -34,6 +34,7 @@ public final class VideoCursorMapper extends CursorMapper {
     private static int cardImageUrlIndex;
     private static int studioIndex;
     private static int categoryIndex;
+    private static int durationIndex;
 
     @Override
     protected void bindColumns(Cursor cursor) {
@@ -45,6 +46,7 @@ public final class VideoCursorMapper extends CursorMapper {
         cardImageUrlIndex = cursor.getColumnIndex(VideoContract.VideoEntry.COLUMN_CARD_IMG);
         studioIndex = cursor.getColumnIndex(VideoContract.VideoEntry.COLUMN_STUDIO);
         categoryIndex = cursor.getColumnIndex(VideoContract.VideoEntry.COLUMN_CATEGORY);
+        durationIndex = cursor.getColumnIndex(VideoContract.VideoEntry.COLUMN_DURATION);
     }
 
     @Override
@@ -59,6 +61,7 @@ public final class VideoCursorMapper extends CursorMapper {
         String bgImageUrl = cursor.getString(bgImageUrlIndex);
         String cardImageUrl = cursor.getString(cardImageUrlIndex);
         String studio = cursor.getString(studioIndex);
+        String duration = cursor.getString(durationIndex);
 
         // Build a Video object to be processed.
         return new Video.VideoBuilder()
@@ -70,6 +73,7 @@ public final class VideoCursorMapper extends CursorMapper {
                 .bgImageUrl(bgImageUrl)
                 .cardImageUrl(cardImageUrl)
                 .studio(studio)
+                .duration(duration)
                 .build();
     }
 }

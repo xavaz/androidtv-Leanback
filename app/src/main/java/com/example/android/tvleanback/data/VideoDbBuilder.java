@@ -17,6 +17,7 @@ package com.example.android.tvleanback.data;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Resources;
 import android.media.Rating;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -26,9 +27,11 @@ import com.example.android.tvleanback.R;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
@@ -48,6 +51,9 @@ public class VideoDbBuilder {
     public static final String TAG_CARD_THUMB = "card";
     public static final String TAG_BACKGROUND = "background";
     public static final String TAG_TITLE = "title";
+    public static final String TAG_RATING_SCORE = "rating";
+    public static final String TAG_PLAYABLE = "playable";
+    public static final String TAG_DURATION = "duration";
 
     private static final String TAG = "VideoDbBuilder";
 
@@ -70,8 +76,13 @@ public class VideoDbBuilder {
      */
     public @NonNull List<ContentValues> fetch(String url)
             throws IOException, JSONException {
-        JSONObject videoData = fetchJSON(url);
-        return buildMedia(videoData);
+        JSONObject videoData;
+        if(url.contains("R.raw"))
+            videoData = createJSONFromFile(this.mContext.getResources().getIdentifier(url.replace("R.raw.",""),"raw", this.mContext.getPackageName()));
+        else {
+            videoData = fetchJSON(url);
+        }
+        return buildMedia(videoData, url);
     }
 
     /**
@@ -79,7 +90,7 @@ public class VideoDbBuilder {
      * @param jsonObj The JSON object of videos
      * @throws JSONException if the JSON object is invalid
      */
-    public List<ContentValues> buildMedia(JSONObject jsonObj) throws JSONException {
+    public List<ContentValues> buildMedia(JSONObject jsonObj, String URL) throws JSONException {
 
         JSONArray categoryArray = jsonObj.getJSONArray(TAG_GOOGLE_VIDEOS);
         List<ContentValues> videosToInsert = new ArrayList<>();
@@ -106,6 +117,8 @@ public class VideoDbBuilder {
                 String bgImageUrl = video.optString(TAG_BACKGROUND);
                 String cardImageUrl = video.optString(TAG_CARD_THUMB);
                 String studio = video.optString(TAG_STUDIO);
+                String duration = video.optString(TAG_DURATION);
+                boolean playable = video.optString("playable") == "1"? true : false;
 
                 ContentValues videoValues = new ContentValues();
                 videoValues.put(VideoContract.VideoEntry.COLUMN_CATEGORY, categoryName);
@@ -121,7 +134,7 @@ public class VideoDbBuilder {
                 videoValues.put(VideoContract.VideoEntry.COLUMN_IS_LIVE, false);
                 videoValues.put(VideoContract.VideoEntry.COLUMN_AUDIO_CHANNEL_CONFIG, "2.0");
                 videoValues.put(VideoContract.VideoEntry.COLUMN_PRODUCTION_YEAR, 2014);
-                videoValues.put(VideoContract.VideoEntry.COLUMN_DURATION, 0);
+                videoValues.put(VideoContract.VideoEntry.COLUMN_DURATION, duration);
                 videoValues.put(VideoContract.VideoEntry.COLUMN_RATING_STYLE,
                         Rating.RATING_5_STARS);
                 videoValues.put(VideoContract.VideoEntry.COLUMN_RATING_SCORE, 3.5f);
@@ -176,4 +189,31 @@ public class VideoDbBuilder {
             }
         }
     }
+
+    private JSONObject createJSONFromFile(int fileID) {
+
+        JSONObject result = null;
+
+        try {
+            // Read file into string builder
+            InputStream inputStream = mContext.getResources().openRawResource(fileID);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuilder builder = new StringBuilder();
+
+            for (String line = null; (line = reader.readLine()) != null ; ) {
+                builder.append(line).append("\n");
+            }
+
+            // Parse into JSONObject
+            String resultStr = builder.toString();
+            JSONTokener tokener = new JSONTokener(resultStr);
+            result = new JSONObject(tokener);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return result;
+    }
+
 }

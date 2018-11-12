@@ -182,9 +182,9 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                 getActivity(),
                 VideoContract.VideoEntry.CONTENT_URI,
                 null, // Return all fields.
-                VideoContract.VideoEntry.COLUMN_NAME + " LIKE ? OR " +
-                        VideoContract.VideoEntry.COLUMN_DESC + " LIKE ?",
-                new String[]{"%" + query + "%", "%" + query + "%"},
+                "LOWER("+VideoContract.VideoEntry.COLUMN_NAME + ") LIKE ? OR " +
+                        "LOWER("+VideoContract.VideoEntry.COLUMN_DESC + ") LIKE ?",
+                new String[]{"%" + query.toLowerCase() + "%", "%" + query.toLowerCase() + "%"},
                 null // Default sort order
         );
     }

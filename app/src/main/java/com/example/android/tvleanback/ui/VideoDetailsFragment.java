@@ -16,18 +16,25 @@
 
 package com.example.android.tvleanback.ui;
 
+import android.Manifest;
 import android.app.LoaderManager;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.app.DetailsFragment;
 import android.support.v17.leanback.widget.Action;
@@ -48,6 +55,7 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
@@ -67,6 +75,19 @@ import com.example.android.tvleanback.model.Video;
 import com.example.android.tvleanback.model.VideoCursorMapper;
 import com.example.android.tvleanback.presenter.CardPresenter;
 import com.example.android.tvleanback.presenter.DetailsDescriptionPresenter;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static android.os.Environment.DIRECTORY_MOVIES;
+import static android.os.Environment.getExternalStoragePublicDirectory;
 
 /*
  * VideoDetailsFragment extends DetailsFragment, a Wrapper fragment for leanback details screens.
@@ -156,7 +177,7 @@ public class VideoDetailsFragment extends DetailsFragment
     private void prepareBackgroundManager() {
         mBackgroundManager = BackgroundManager.getInstance(getActivity());
         mBackgroundManager.attach(getActivity().getWindow());
-        mDefaultBackground = getResources().getDrawable(R.drawable.default_background, null);
+        mDefaultBackground = getResources().getDrawable(R.drawable.background_canyon, null);
         mMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
     }
@@ -164,7 +185,8 @@ public class VideoDetailsFragment extends DetailsFragment
     private void updateBackground(String uri) {
         RequestOptions options = new RequestOptions()
                 .centerCrop()
-                .error(mDefaultBackground);
+                .placeholder(R.drawable.background_canyon)
+                .error(R.drawable.background_canyon);
 
         Glide.with(this)
                 .asBitmap()
@@ -172,13 +194,29 @@ public class VideoDetailsFragment extends DetailsFragment
                 .apply(options)
                 .into(new SimpleTarget<Bitmap>(mMetrics.widthPixels, mMetrics.heightPixels) {
                     @Override
+                    public void onLoadStarted(Drawable placeholder) {
+                        if(placeholder==null)
+                            placeholder=getResources().getDrawable(R.drawable.background_canyon);
+                        super.onLoadStarted(placeholder);
+                        mBackgroundManager.setBitmap(((BitmapDrawable)placeholder).getBitmap());
+                    }
+                    @Override
                     public void onResourceReady(
                             Bitmap resource,
                             Transition<? super Bitmap> transition) {
                         mBackgroundManager.setBitmap(resource);
                     }
+
+                    @Override
+                    public void onLoadFailed(Drawable errorDrawable){
+                        if(errorDrawable==null)
+                            errorDrawable=getResources().getDrawable(R.drawable.background_canyon);
+                        mBackgroundManager.setBitmap(((BitmapDrawable)errorDrawable).getBitmap());
+                    }
+
                 });
     }
+
 
     private void setupAdapter() {
         // Set detail background and style.
@@ -199,13 +237,16 @@ public class VideoDetailsFragment extends DetailsFragment
         prepareEntranceTransition();
 
         detailsPresenter.setOnActionClickedListener(new OnActionClickedListener() {
-            @Override
+            boolean mixingNY= PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(getString(R.string.pref_key_mixing),false);
+          @Override
             public void onActionClicked(Action action) {
                 if (action.getId() == ACTION_WATCH_TRAILER) {
-                    Intent intent = new Intent(getActivity(), PlaybackActivity.class);
-                    intent.putExtra(VideoDetailsActivity.VIDEO, mSelectedVideo);
-                    startActivity(intent);
-                } else {
+                    ACTION_SWITCH(mixingNY,ACTION_WATCH_TRAILER);
+                } else if (action.getId() == ACTION_RENT) {
+                    ACTION_SWITCH(mixingNY,ACTION_RENT);
+                } else if (action.getId() == ACTION_BUY ) {
+                    setSelectedPosition(1);
+                }  else {
                     Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
                 }
             }
@@ -223,13 +264,15 @@ public class VideoDetailsFragment extends DetailsFragment
         switch (id) {
             case RELATED_VIDEO_LOADER: {
                 String category = args.getString(VideoContract.VideoEntry.COLUMN_CATEGORY);
+                String desc = args.getString(VideoContract.VideoEntry.COLUMN_DESC);
                 return new CursorLoader(
                         getActivity(),
                         VideoContract.VideoEntry.CONTENT_URI,
                         null,
-                        VideoContract.VideoEntry.COLUMN_CATEGORY + " = ?",
-                        new String[]{category},
-                        null
+                        //VideoContract.VideoEntry.COLUMN_CATEGORY + " = ?",
+                        VideoContract.VideoEntry.COLUMN_DESC + " LIKE ?",
+                        new String[]{"%" + desc + "%"},
+                        VideoContract.VideoEntry.COLUMN_NAME
                 );
             }
             default: {
@@ -263,7 +306,7 @@ public class VideoDetailsFragment extends DetailsFragment
                     setupAdapter();
                     setupDetailsOverviewRow();
                     setupMovieListRow();
-                    updateBackground(mSelectedVideo.bgImageUrl);
+                    //updateBackground(mSelectedVideo.bgImageUrl);
 
                     // When a Related Video item is clicked.
                     setOnItemViewClickedListener(new ItemViewClickedListener());
@@ -324,7 +367,8 @@ public class VideoDetailsFragment extends DetailsFragment
         final DetailsOverviewRow row = new DetailsOverviewRow(mSelectedVideo);
 
         RequestOptions options = new RequestOptions()
-                .error(R.drawable.default_background)
+                .placeholder(R.drawable.movie)
+                .error(R.drawable.movie)
                 .dontAnimate();
 
         Glide.with(this)
@@ -333,11 +377,24 @@ public class VideoDetailsFragment extends DetailsFragment
                 .apply(options)
                 .into(new SimpleTarget<Bitmap>() {
                     @Override
+                    public void onLoadStarted(Drawable placeholder) {
+                        placeholder=getResources().getDrawable(R.drawable.movie);
+                        super.onLoadStarted(placeholder);
+                        row.setImageBitmap(getActivity(),((BitmapDrawable)placeholder).getBitmap());
+                    }
+
+                    @Override
                     public void onResourceReady(
                             Bitmap resource,
                             Transition<? super Bitmap> transition) {
                         row.setImageBitmap(getActivity(), resource);
                         startEntranceTransition();
+                    }
+
+                    @Override
+                    public void onLoadFailed(Drawable errorDrawable){
+                        errorDrawable=getResources().getDrawable(R.drawable.movie);
+                        row.setImageBitmap(getActivity(),((BitmapDrawable)errorDrawable).getBitmap());
                     }
                 });
 
@@ -360,9 +417,10 @@ public class VideoDetailsFragment extends DetailsFragment
 
         // Generating related video list.
         String category = mSelectedVideo.category;
-
+        String desc = mSelectedVideo.description;
         Bundle args = new Bundle();
         args.putString(VideoContract.VideoEntry.COLUMN_CATEGORY, category);
+        args.putString(VideoContract.VideoEntry.COLUMN_DESC, desc);
         getLoaderManager().initLoader(RELATED_VIDEO_LOADER, args, this);
 
         HeaderItem header = new HeaderItem(0, subcategories[0]);
@@ -385,6 +443,44 @@ public class VideoDetailsFragment extends DetailsFragment
                         VideoDetailsActivity.SHARED_ELEMENT_NAME).toBundle();
                 getActivity().startActivity(intent, bundle);
             }
+        }
+    }
+
+
+
+
+    private void ACTION_WATCH_TRAILER(){
+        Intent intent = new Intent(getActivity(), PlaybackActivity.class);
+        intent.putExtra(VideoDetailsActivity.VIDEO, mSelectedVideo);
+        startActivity(intent);
+    }
+
+    private void ACTION_RENT(){
+        Uri uri = Uri.parse(mSelectedVideo.videoUrl.toString());
+        String Number = uri.getQueryParameter("i");
+        Number = String.format("%05d", Integer.parseInt(Number));
+        String company = uri.getQueryParameter("v");
+        company = company.replace("cs","CS").replace("ky","audio").replace("tj","TJ");
+        String duration = mSelectedVideo.duration.toString();
+        Intent intent = new Intent(getActivity(), KaraokeActivity.class);
+        intent.putExtra("company", company);
+        intent.putExtra("number", Number);
+        intent.putExtra("duration", duration);
+        startActivity(intent);
+    }
+
+    private void ACTION_SWITCH(boolean mode, int actionID){
+        if(!mode){
+            if(actionID==ACTION_WATCH_TRAILER)
+                ACTION_WATCH_TRAILER();
+            else if(actionID==ACTION_RENT)
+                ACTION_RENT();
+        }
+        else {
+            if(actionID==ACTION_WATCH_TRAILER)
+                ACTION_RENT();
+            else if(actionID==ACTION_RENT)
+                ACTION_WATCH_TRAILER();
         }
     }
 }

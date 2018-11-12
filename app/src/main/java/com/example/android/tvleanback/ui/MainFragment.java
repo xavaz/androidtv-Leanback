@@ -18,12 +18,14 @@ package com.example.android.tvleanback.ui;
 
 import android.app.Activity;
 import android.app.LoaderManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -45,6 +47,7 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -135,14 +138,14 @@ public class MainFragment extends BrowseFragment implements LoaderManager.Loader
     private void prepareBackgroundManager() {
         mBackgroundManager = BackgroundManager.getInstance(getActivity());
         mBackgroundManager.attach(getActivity().getWindow());
-        mDefaultBackground = getResources().getDrawable(R.drawable.default_background, null);
+        mDefaultBackground = getResources().getDrawable(R.drawable.background_canyon, null);
         mMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
     }
 
     private void setupUIElements() {
         setBadgeDrawable(
-                getActivity().getResources().getDrawable(R.drawable.videos_by_google_banner, null));
+                getActivity().getResources().getDrawable(R.drawable.ui_badge, null));
         setTitle(getString(R.string.browse_title)); // Badge, when set, takes precedent over title
         setHeadersState(HEADERS_ENABLED);
         setHeadersTransitionOnBackEnabled(true);
@@ -181,7 +184,8 @@ public class MainFragment extends BrowseFragment implements LoaderManager.Loader
 
         RequestOptions options = new RequestOptions()
                 .centerCrop()
-                .error(mDefaultBackground);
+                .error(mDefaultBackground)
+                .placeholder(mDefaultBackground);
 
         Glide.with(this)
                 .asBitmap()
@@ -189,10 +193,24 @@ public class MainFragment extends BrowseFragment implements LoaderManager.Loader
                 .apply(options)
                 .into(new SimpleTarget<Bitmap>(width, height) {
                     @Override
+                    public void onLoadStarted(Drawable placeholder) {
+                        placeholder=getResources().getDrawable(R.drawable.background_canyon);
+                        super.onLoadStarted(placeholder);
+                        mBackgroundManager.setDrawable(placeholder);
+                    }
+
+                    @Override
                     public void onResourceReady(
                             Bitmap resource,
                             Transition<? super Bitmap> transition) {
                         mBackgroundManager.setBitmap(resource);
+                    }
+
+
+                    @Override
+                    public void onLoadFailed(Drawable errorDrawable){
+                        errorDrawable=getResources().getDrawable(R.drawable.background_canyon);
+                        mBackgroundManager.setDrawable(errorDrawable);
                     }
                 });
         mBackgroundTimer.cancel();
@@ -221,7 +239,7 @@ public class MainFragment extends BrowseFragment implements LoaderManager.Loader
                     // Only categories
                     null, // No selection clause
                     null, // No selection arguments
-                    null  // Default sort order
+                    VideoContract.VideoEntry.COLUMN_NAME  // Default sort order
             );
         } else {
             // Assume it is for a video.
@@ -234,7 +252,7 @@ public class MainFragment extends BrowseFragment implements LoaderManager.Loader
                     null, // Projection to return - null means return all fields
                     VideoContract.VideoEntry.COLUMN_CATEGORY + " = ?", // Selection clause
                     new String[]{category},  // Select based on the category id.
-                    null // Default sort order
+                    VideoContract.VideoEntry.COLUMN_NAME // Default sort order
             );
         }
     }
@@ -302,10 +320,44 @@ public class MainFragment extends BrowseFragment implements LoaderManager.Loader
                 mVideoCursorAdapters.get(loaderId).changeCursor(data);
             }
         } else {
-            // Start an Intent to fetch the videos.
-            Intent serviceIntent = new Intent(getActivity(), FetchVideoService.class);
-            getActivity().startService(serviceIntent);
+
+            if(isOnline()){
+
+                Intent serviceIntent = new Intent(getActivity(), FetchVideoService.class);
+                //serviceIntent.putExtra("data_url", getResources().getString(R.string.catalog_url) );
+                serviceIntent.putExtra("mode", "bulkInsert");
+                serviceIntent.putExtra("command", "http://fytoz.asuscomm.com/android-tv/tjweb.json" );
+                getActivity().startService(serviceIntent);
+            }
+            else{
+
+                Intent serviceIntent = new Intent(getActivity(), FetchVideoService.class);
+                serviceIntent.putExtra("mode", "bulkInsert");
+                serviceIntent.putExtra("command", "R.raw.kyweb");
+                //serviceIntent.putExtra("data_url", "http://fytoz.asuscomm.com/android-tv/kyweb.json");
+                getActivity().startService(serviceIntent);
+            }
         }
+    }
+
+    public static Uri resourceToUri(Context context, int resID) {
+        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
+                context.getResources().getResourcePackageName(resID) + '/' +
+                context.getResources().getResourceTypeName(resID) + '/' +
+                context.getResources().getResourceEntryName(resID) );
+    }
+
+    public Boolean isOnline() {
+        try {
+            Process p1 = java.lang.Runtime.getRuntime().exec("ping -c 1 www.google.com");
+            int returnVal = p1.waitFor();
+            boolean reachable = (returnVal==0);
+            return reachable;
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override
@@ -327,6 +379,9 @@ public class MainFragment extends BrowseFragment implements LoaderManager.Loader
                 public void run() {
                     if (mBackgroundURI != null) {
                         updateBackground(mBackgroundURI.toString());
+                    }
+                    else {
+                        updateBackground(getResources().getDrawable(R.drawable.background_canyon, null).toString());
                     }
                 }
             });
@@ -375,6 +430,16 @@ public class MainFragment extends BrowseFragment implements LoaderManager.Loader
                     Toast.makeText(getActivity(), ((String) item), Toast.LENGTH_SHORT)
                             .show();
                 }
+            } else  {
+                Video video = (Video) item;
+                Intent intent = new Intent(getActivity(), VideoDetailsActivity.class);
+                intent.putExtra(VideoDetailsActivity.VIDEO, video);
+
+                Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        getActivity(),
+                        ((ImageCardView) itemViewHolder.view).getMainImageView(),
+                        VideoDetailsActivity.SHARED_ELEMENT_NAME).toBundle();
+                getActivity().startActivity(intent, bundle);
             }
         }
     }
@@ -384,8 +449,8 @@ public class MainFragment extends BrowseFragment implements LoaderManager.Loader
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                 RowPresenter.ViewHolder rowViewHolder, Row row) {
             if (item instanceof Video) {
-                mBackgroundURI = Uri.parse(((Video) item).bgImageUrl);
-                startBackgroundTimer();
+                //mBackgroundURI = Uri.parse(((Video) item).bgImageUrl);
+                //startBackgroundTimer();
             }
 
         }

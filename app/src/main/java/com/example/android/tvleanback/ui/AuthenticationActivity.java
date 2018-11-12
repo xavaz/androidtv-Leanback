@@ -17,16 +17,23 @@
 package com.example.android.tvleanback.ui;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidedAction;
+import android.support.v7.preference.PreferenceManager;
 import android.text.InputType;
 import android.widget.Toast;
 
 import com.example.android.tvleanback.R;
+import com.example.android.tvleanback.data.FetchVideoService;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.List;
 
@@ -61,6 +68,7 @@ public class AuthenticationActivity extends Activity {
             GuidedAction enterUsername = new GuidedAction.Builder()
                     .title(getString(R.string.pref_title_username))
                     .descriptionEditable(true)
+                    .descriptionInputType(InputType.TYPE_CLASS_TEXT)
                     .build();
             GuidedAction enterPassword = new GuidedAction.Builder()
                     .title(getString(R.string.pref_title_password))
@@ -81,7 +89,17 @@ public class AuthenticationActivity extends Activity {
             if (action.getId() == CONTINUE) {
                 // TODO Authenticate your account
                 // Assume the user was logged in
-                Toast.makeText(getActivity(), "Welcome!", Toast.LENGTH_SHORT).show();
+                String server = getActions().get(0).getDescription().toString();
+                String db = getActions().get(1).getDescription().toString();
+                if(server.contains("admin"))
+                    server="http://fytoz.asuscomm.com/4TB/";
+                String output = String.format("%s%s.json", server, db);
+                Toast.makeText(getActivity(), output+" activated", Toast.LENGTH_SHORT).show();
+                Intent serviceIntent = new Intent(getActivity(), FetchVideoService.class);
+                serviceIntent.putExtra("mode", "bulkInsert");
+                serviceIntent.putExtra("command", output);
+
+                getActivity().startService(serviceIntent);
                 getActivity().finishAfterTransition();
             }
         }

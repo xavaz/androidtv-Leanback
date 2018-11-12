@@ -22,6 +22,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import com.example.android.tvleanback.R;
+import com.example.android.tvleanback.model.Video;
 
 /**
  * Loads PlaybackFragment and delegates input from a game controller.
@@ -39,9 +40,14 @@ public class PlaybackActivity extends LeanbackActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_playback);
-        Fragment fragment =
-                getFragmentManager().findFragmentByTag(getString(R.string.playback_tag));
+        Video video = this.getIntent().getParcelableExtra(VideoDetailsActivity.VIDEO);
+        if(video.videoUrl.contains(".html") || video.videoUrl.contains(".php")){
+            setContentView(R.layout.webview);
+        } else {
+            setContentView(R.layout.activity_playback);
+        }
+
+        Fragment fragment = getFragmentManager().findFragmentByTag(getString(R.string.playback_tag));
         if (fragment instanceof PlaybackFragment) {
             mPlaybackFragment = (PlaybackFragment) fragment;
         }

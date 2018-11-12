@@ -43,7 +43,7 @@ public class CardPresenter extends Presenter {
             ContextCompat.getColor(parent.getContext(), R.color.default_background);
         mSelectedBackgroundColor =
                 ContextCompat.getColor(parent.getContext(), R.color.selected_background);
-        mDefaultCardImage = parent.getResources().getDrawable(R.drawable.movie, null);
+        mDefaultCardImage = parent.getResources().getDrawable(R.drawable.movie);
 
         ImageCardView cardView = new ImageCardView(parent.getContext()) {
             @Override
@@ -74,8 +74,14 @@ public class CardPresenter extends Presenter {
 
         ImageCardView cardView = (ImageCardView) viewHolder.view;
         cardView.setTitleText(video.title);
-        cardView.setContentText(video.studio);
+        cardView.setContentText(video.description);
 
+        if(video.category.equals("TJ"))
+            cardView.setBadgeImage(viewHolder.view.getResources().getDrawable(R.drawable.ic_tj_128x128,null));
+        if(video.category.equals("KY"))
+            cardView.setBadgeImage(viewHolder.view.getResources().getDrawable(R.drawable.ic_ky_128x128_3,null));
+        if(video.category.equals("CS"))
+            cardView.setBadgeImage(viewHolder.view.getResources().getDrawable(R.drawable.ic_cs_128x128,null));
         if (video.cardImageUrl != null) {
             // Set card size from dimension resources.
             Resources res = cardView.getResources();
@@ -83,10 +89,18 @@ public class CardPresenter extends Presenter {
             int height = res.getDimensionPixelSize(R.dimen.card_height);
             cardView.setMainImageDimensions(width, height);
 
+
+            RequestOptions options = new RequestOptions()
+                    .centerCrop()
+                    .placeholder(R.drawable.movie)
+                    .error(R.drawable.movie);
+
             Glide.with(cardView.getContext())
                     .load(video.cardImageUrl)
-                    .apply(RequestOptions.errorOf(mDefaultCardImage))
+                    .apply(options)
                     .into(cardView.getMainImageView());
+
+
         }
     }
 

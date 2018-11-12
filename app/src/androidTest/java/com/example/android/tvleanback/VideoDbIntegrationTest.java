@@ -128,7 +128,7 @@ public class VideoDbIntegrationTest extends ActivityInstrumentationTestCase2<Mai
         myMedia.put(VideoDbBuilder.TAG_GOOGLE_VIDEOS, mediaCategories);
 
         VideoDbBuilder videoDbBuilder = new VideoDbBuilder(getActivity());
-        List<ContentValues> contentValuesList = videoDbBuilder.buildMedia(myMedia);
+        List<ContentValues> contentValuesList = videoDbBuilder.buildMedia(myMedia,"");
         ContentValues[] downloadedVideoContentValues = contentValuesList.toArray(new ContentValues[contentValuesList.size()]);
         getActivity().getContentResolver().bulkInsert(VideoContract.VideoEntry.CONTENT_URI,
                 downloadedVideoContentValues);

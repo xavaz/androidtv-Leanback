@@ -18,7 +18,9 @@ package com.example.android.tvleanback.ui;
 
 import android.os.Bundle;
 
+
 import com.example.android.tvleanback.R;
+
 
 /*
  * Details activity class that loads VideoDetailsFragment class
@@ -35,5 +37,7 @@ public class VideoDetailsActivity extends LeanbackActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_details);
+
     }
+
 }

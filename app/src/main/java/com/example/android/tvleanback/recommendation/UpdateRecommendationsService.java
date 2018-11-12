@@ -25,11 +25,13 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.preference.PreferenceManager;
 import android.support.app.recommendation.ContentRecommendation;
 import android.util.Log;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.android.tvleanback.BuildConfig;
 import com.example.android.tvleanback.R;
 import com.example.android.tvleanback.data.VideoContract;
@@ -97,13 +99,23 @@ public class UpdateRecommendationsService extends IntentService {
                             .setText(getString(R.string.popular_header))
                             .setContentIntentData(ContentRecommendation.INTENT_TYPE_ACTIVITY,
                                     buildPendingIntent(video, id), 0, null);
+                    RequestOptions options = new RequestOptions()
+                            .placeholder(R.drawable.movie)
+                            .error(R.drawable.movie)
+                            .dontAnimate();
 
-                    Bitmap bitmap = Glide.with(getApplication())
-                            .asBitmap()
-                            .load(video.cardImageUrl)
-                            .submit(cardWidth, cardHeight) // Only use for synchronous .get()
-                            .get();
-                    builder.setContentImage(bitmap);
+
+                    try {
+                        Bitmap bitmap = Glide.with(getApplication())
+                                .asBitmap()
+                                .load(video.cardImageUrl)
+                                .apply(options)
+                                .submit(cardWidth, cardHeight) // Only use for synchronous .get()
+                                .get();
+                        builder.setContentImage(bitmap);
+                    } catch(Exception e){
+                        builder.setContentImage(((BitmapDrawable)getResources().getDrawable(R.drawable.movie)).getBitmap());
+                    }
 
                     // Create an object holding all the information used to recommend the content.
                     ContentRecommendation rec = builder.build();
@@ -114,7 +126,7 @@ public class UpdateRecommendationsService extends IntentService {
                     // Recommend the content by publishing the notification.
                     mNotifManager.notify(id, notification);
                 } while (cursor.moveToNext());
-            } catch (InterruptedException | ExecutionException e) {
+            } catch (Exception e) {
                 Log.e(TAG, "Could not create recommendation.", e);
             } finally {
                 cursor.close();

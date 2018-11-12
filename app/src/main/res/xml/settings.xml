@@ -7,6 +7,17 @@
             android:defaultValue="true"
             android:key="@string/pref_key_recommendations" />
     </PreferenceCategory>
+    <SwitchPreference
+        android:title="@string/pref_title_mixing"
+        android:defaultValue="false"
+        android:key="@string/pref_key_mixing" />
+    <SwitchPreference
+        android:title="@string/pref_title_USB"
+        android:defaultValue="false"
+        android:key="@string/pref_key_USB" />
+    <Preference
+        android:key="@string/pref_key_server_setting"
+        android:title="@string/pref_title_server_setting" />
     <Preference
         android:key="@string/pref_key_login"
         android:title="@string/pref_title_login" />
